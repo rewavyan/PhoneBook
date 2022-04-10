@@ -1,0 +1,1 @@
+﻿DevExpress.localization.locale("ru");

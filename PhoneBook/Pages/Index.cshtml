@@ -1,0 +1,60 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Телефонный справочник";
+}
+
+@(Html.DevExtreme().DataGrid<PhoneBook.Models.PhoneBookRecord>()
+    .DataSource(ds => ds.Mvc()
+        .Controller("PhoneBookRecords")
+        .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("ID")
+    )
+    .RemoteOperations(true)
+    .Columns(columns => {
+
+    columns.AddFor(m => m.ID).Caption("№")
+        .AllowEditing(false)
+        .Width(64);
+
+    columns.AddFor(m => m.FullName).Caption("ФИО");
+
+    columns.AddFor(m => m.AreaID).Caption("Район")
+        .Lookup(lookup => lookup
+            .DataSource(d => d.Mvc().Controller("PhoneBookRecords").LoadAction("AreasLookup").Key("Value"))
+            .ValueExpr("Value")
+            .DisplayExpr("Text")
+        );
+
+    columns.AddFor(m => m.Address).Caption("Адрес");
+
+    columns.AddFor(m => m.Phone).Caption("Телефон")
+        .EditCellTemplate(
+                @<text>
+                    @(Html.DevExtreme()
+                        .TextBox()
+                        .Value(new JS("value"))
+                        .Mask("+9(999)000-00-00")
+                        .OnValueChanged("function(e) { setValue('+' + e.value); }"))
+                </text>
+            );
+    })
+    .ShowBorders(true)
+    .AllowColumnResizing(true)
+    .FilterRow(f => f.Visible(true))
+    .HeaderFilter(f => f.Visible(true))
+    .Editing(e => e
+        .AllowAdding(true)
+        .AllowUpdating(true)
+        .AllowDeleting(true)
+        .UseIcons(true)
+    )
+    .Paging(p => p.PageSize(10))
+    .Pager(p => p
+        .ShowPageSizeSelector(true)
+        .AllowedPageSizes(new[] {10, 25, 50, 100 })
+    )
+)
